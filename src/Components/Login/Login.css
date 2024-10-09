@@ -1,0 +1,21 @@
+.container {
+  height: 100vh;
+  width: 100vw;
+  background-color: rgb(213, 200, 200);
+  opacity: 0.8;
+  margin: 0;
+  border: 0;
+  padding: 0;
+  display: flex;
+  justify-content: end;
+  align-items: center 
+}
+
+.login-box {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-right: 5%;
+  /* width: 250px;
+  height: 350px; */
+}
