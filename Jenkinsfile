@@ -13,7 +13,7 @@ node {
             sh 'npm i --save --legacy-peer-deps'
         }
         stage('Building Dist') {
-            sh 'npm run build'
+            sh 'CI=false npm run build'
         }
         stage('Clear Files') {
             sh 'sudo rm -rf /usr/share/nginx/html/main/*'
