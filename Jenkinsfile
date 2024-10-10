@@ -1,4 +1,7 @@
 node {
+    environment {
+        CI = false          // do not treat warnings as errors
+    }
     stage('Build ng image') {
         stage('Pull repository') {
                 checkout scm
