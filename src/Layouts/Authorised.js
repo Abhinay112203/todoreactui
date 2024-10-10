@@ -104,7 +104,7 @@ export default function AuthorisedLayout() {
     let headers = new Headers();
     headers.append("content-type", "application/json");
     headers.append("Authorization", "Bearer " + token);
-    await fetch("http://localhost:5134/api/lists", {
+    await fetch("http://localhost:5236/api/lists", {
       method: "GET",
       headers,
     }).then(async (res) => {

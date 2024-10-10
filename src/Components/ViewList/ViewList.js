@@ -24,7 +24,7 @@ export default function ViewList() {
     let headers = new Headers();
     headers.append("content-type", "application/json");
     headers.append("Authorization", "Bearer " + token);
-    await fetch(`http://localhost:5134/api/lists/${id}/stage`, {
+    await fetch(`http://localhost:5236/api/lists/${id}/stage`, {
       method: "GET",
       headers,
     }).then(async (res) => {
