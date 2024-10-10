@@ -57,7 +57,7 @@ import {
         let headers = new Headers();
         headers.append("content-type", "application/json");
         try {
-          await fetch("http://68.233.119.75:5236/api/login", {
+          await fetch("/api/login", {
             method: "POST",
             body: JSON.stringify(value),
             headers,

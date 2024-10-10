@@ -61,7 +61,7 @@ function CreateListDialog(props) {
       headers.append("content-type", "application/json");
       headers.append("Authorization", "Bearer " + token);
       try {
-        await fetch("http://68.233.119.75:5236/api/lists", {
+        await fetch("/api/lists", {
           method: "POST",
           body: JSON.stringify(value),
           headers,
