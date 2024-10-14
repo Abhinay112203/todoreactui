@@ -89,20 +89,56 @@ export default function ViewList() {
     });
   }
   function dragEnd(props) {
-    updateStage(props?.destination?.droppableId, props.draggableId);
+    console.log(props);
+    var destinationStage = props?.destination;
+    var sourceStage = props?.source;
+    var movedItem = undefined;
+
+    var FinalStage = [];
+    for (let i = 0; i < stages.length; i++) {
+      let aStage = stages[i];
+      if (aStage.id === sourceStage.droppableId) {
+        movedItem = aStage.tasks[sourceStage.index];
+        aStage.tasks.splice(sourceStage.index, 1);
+      }
+    }
+    for (let i = 0; i < stages.length; i++) {
+      let aStage = stages[i];
+      if (aStage.id === destinationStage.droppableId) {
+        aStage.tasks.splice(destinationStage.index, 0, movedItem);
+      }
+    }
+    console.log(stages);
+    // toDoItemId,stageId,Order
+    let FinalOrder = [];
+    stages.forEach((aStage) => {
+      ((aStage.tasks && aStage.tasks.length > 0) ? aStage.tasks : []).forEach(
+        (aTask, ind) => {
+          FinalOrder.push({
+            toDoItemId: aTask.id,
+            stageId: aStage.id,
+            order: ind,
+          });
+        }
+      );
+    });
+
+    updateStage(FinalOrder);
   }
-  async function updateStage(stageId, itemId) {
+  async function updateStage(payload) {
     let token = localStorage.getItem("token");
     let headers = new Headers();
     headers.append("content-type", "application/json");
     headers.append("Authorization", "Bearer " + token);
-    await fetch("/api/ToDo/updateStage", {
-      method: "PUT",
-      body: JSON.stringify({ toDoItemId: itemId, stageId: stageId }),
-      headers,
-    }).then(() => {
-      getLists();
-    });
+    try {
+      await fetch(`/api/ToDo/updateStage`, {
+        method: "PUT",
+        body: JSON.stringify(payload),
+        headers,
+      });
+    } catch (ex) {
+      console.log(ex);
+    }
   }
 
   return (
@@ -159,6 +195,7 @@ export default function ViewList() {
                   width: "180px",
                   border: " 1px solid #bf9c98",
                   borderRadius: "10px",
+                  order: stage.order,
                 }}
               >
                 <div className="list-title">
