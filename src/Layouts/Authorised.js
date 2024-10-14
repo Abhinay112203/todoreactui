@@ -14,10 +14,10 @@ import ListItemText from "@mui/material/ListItemText";
 import { styled, useTheme } from "@mui/material/styles";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
-import { useEffect, useState } from "react";
-import { Outlet, useNavigate } from "react-router-dom";
+import { useEffect, useLayoutEffect, useState } from "react";
+import { Outlet, useNavigate, useParams } from "react-router-dom";
 import CreateListDialog from "../Components/CreateList/CreateList";
-import { Button } from "@mui/material";
+import { Button, colors } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 
 const drawerWidth = 240;
@@ -47,29 +47,6 @@ const Main = styled("main", { shouldForwardProp: (prop) => prop !== "open" })(
   })
 );
 
-// App Bar Section
-// const AppBar = styled(MuiAppBar, {
-//   shouldForwardProp: (prop) => prop !== 'open',
-// })(({ theme }) => ({
-//   transition: theme.transitions.create(['margin', 'width'], {
-//     easing: theme.transitions.easing.sharp,
-//     duration: theme.transitions.duration.leavingScreen,
-//   }),
-//   variants: [
-//     {
-//       props: ({ open }) => open,
-//       style: {
-//         width: `calc(100% - ${drawerWidth}px)`,
-//         marginLeft: `${drawerWidth}px`,
-//         transition: theme.transitions.create(['margin', 'width'], {
-//           easing: theme.transitions.easing.easeOut,
-//           duration: theme.transitions.duration.enteringScreen,
-//         }),
-//       },
-//     },
-//   ],
-// }));
-
 // nothing but styled div
 const DrawerHeader = styled("div")(({ theme }) => ({
   display: "flex",
@@ -86,6 +63,8 @@ export default function AuthorisedLayout() {
   const [openCreateList, setOopenCreateList] = useState(false);
   const [toDoLists, setToDoLists] = useState([]);
   const navigate = useNavigate();
+  const [mainHeight, setMainHeight] = useState("");
+  const {listId} = useParams();
 
   const handleDrawerOpen = () => {
     setOpen(!open);
@@ -96,6 +75,7 @@ export default function AuthorisedLayout() {
   };
   useEffect(() => {
     getLists(true);
+    
     return () => {};
   }, []);
 
@@ -104,17 +84,18 @@ export default function AuthorisedLayout() {
     let headers = new Headers();
     headers.append("content-type", "application/json");
     headers.append("Authorization", "Bearer " + token);
-    await fetch("/api/lists", {
+    await fetch("http://localhost:5134/api/lists", {
       method: "GET",
       headers,
     }).then(async (res) => {
       if (res.ok) {
         let response = await res.json();
-        console.log(response);
-        setToDoLists([...response.$values]);
+        setToDoLists([...response]);
         if (redirect) {
-          if (response.$values.length > 0) {
-            openList(response.$values[0].id);
+          if (response.length > 0) {
+            if(!(listId && listId !== "" && listId != undefined)){
+              openList(response[0].id);
+            }
           } else {
             setOopenCreateList(true);
           }
@@ -127,19 +108,33 @@ export default function AuthorisedLayout() {
   }
   function listCreated(id) {
     setOopenCreateList(false);
-    if (listCreated) {
+    if (id) {
       openList(id);
       getLists();
     }
   }
+  useLayoutEffect(() => {
+    setMainHeight(
+      `calc( 100% - ${
+        document.getElementById("mainAppBar").clientHeight
+      }px) !important`
+    );
+  }, []);
 
   return (
-    <Box sx={{ display: "flex" }}>
+    <>
       <CssBaseline />
       <AppBar
-        style={{ color: "#12c526", backgroundColor: "#005e3f" }}
-        sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
-        position="fixed"
+        id="mainAppBar"
+        sx={{
+          zIndex: (theme) => theme.zIndex.drawer + 1,
+          color: colors.blueGrey["A700"],
+          background: [
+            " rgb(255,255,255)",
+            "linear-gradient(113deg, rgba(255,255,255,1) 0%, rgba(254,254,254,1) 74%, rgba(129,181,191,1) 100%)",
+          ],
+        }}
+        position="relative"
         open={open}
       >
         <Toolbar>
@@ -156,66 +151,91 @@ export default function AuthorisedLayout() {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" noWrap component="div">
-            Persistent drawer
+          <Typography
+            style={{
+              fontFamily: '"Updock", cursive',
+              fontWeight: 800,
+              marginLeft: "auto",
+              marginRight: "auto",
+            }}
+            variant="h6"
+            noWrap
+            component="div"
+          >
+            Not Any To-Do
           </Typography>
         </Toolbar>
       </AppBar>
-      <Drawer
-        sx={[
-          {
-            width: drawerWidth,
-            flexShrink: 0,
-            "& .MuiDrawer-paper": {
+      <Box sx={{ display: "flex", height: mainHeight }}>
+        <Drawer
+          sx={[
+            {
               width: drawerWidth,
-              boxSizing: "border-box",
+              flexShrink: 0,
+              "& .MuiDrawer-paper": {
+                width: drawerWidth,
+                boxSizing: "border-box",
+              },
             },
-          },
-          open && { display: "none" },
-        ]}
-        variant="permanent"
-        anchor="left"
-        open={open}
-      >
-        <DrawerHeader>
-          <IconButton onClick={handleDrawerClose}>
-            {theme.direction === "ltr" ? (
-              <ChevronLeftIcon />
-            ) : (
-              <ChevronRightIcon />
-            )}
-          </IconButton>
-        </DrawerHeader>
-        <Divider />
-        <Button
-          onClick={() => {
-            setOopenCreateList(true);
-          }}
-          startIcon={<AddIcon />}
-          variant="text"
+            open && { display: "none" },
+          ]}
+          variant="permanent"
+          anchor="left"
+          open={open}
         >
-          Add List
-        </Button>
-        <Divider />
-        <List>
-          {toDoLists.map((listDetails, index) => (
-            <div key={listDetails.id}>
-              <ListItem onClick={() => openList(listDetails.id)} disablePadding>
-                <ListItemButton>
-                  <ListItemText primary={listDetails.name} />
-                </ListItemButton>
-              </ListItem>
-              <Divider />
-            </div>
-          ))}
-        </List>
-      </Drawer>
-      <Main open={open}>
-        <DrawerHeader />
-        <Outlet />
-      </Main>
-      {openCreateList ? <CreateListDialog open={openCreateList} onClose={listCreated} /> : ''}
-      
-    </Box>
+          <DrawerHeader>
+            <IconButton onClick={handleDrawerClose}>
+              {theme.direction === "ltr" ? (
+                <ChevronLeftIcon />
+              ) : (
+                <ChevronRightIcon />
+              )}
+            </IconButton>
+          </DrawerHeader>
+          <Divider />
+          <Button
+            onClick={() => {
+              setOopenCreateList(true);
+            }}
+            startIcon={<AddIcon />}
+            variant="text"
+          >
+            Add List
+          </Button>
+          <Divider />
+          <List>
+            {toDoLists.map((listDetails, index) => (
+              <div key={listDetails.id}>
+                <ListItem
+                  onClick={() => openList(listDetails.id)}
+                  disablePadding
+                >
+                  <ListItemButton>
+                    <ListItemText primary={listDetails.name} />
+                  </ListItemButton>
+                </ListItem>
+                <Divider />
+              </div>
+            ))}
+          </List>
+        </Drawer>
+        <Main
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            height: "100%",
+            backgroundColor: "#fdfde8",
+          }}
+          open={open}
+        >
+          <Outlet />
+        </Main>
+      </Box>
+      {openCreateList ? (
+        <CreateListDialog open={openCreateList} onClose={listCreated} />
+      ) : (
+        ""
+      )}
+    </>
   );
 }

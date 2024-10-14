@@ -7,14 +7,14 @@ import {
   DialogTitle,
   Divider,
   FormControl,
-  Paper,
+  IconButton,
   Snackbar,
   Stack,
   TextField,
 } from "@mui/material";
 import { useState } from "react";
-import { useLoading } from "../Loader/LoadingProvider";
-
+import { useLoading, useToast } from "../../Contexts/Loader/LoadingProvider";
+import { CloseRounded } from "@mui/icons-material";
 function CreateListDialog(props) {
   const { onClose, open } = props;
   const { setLoading } = useLoading();
@@ -24,11 +24,7 @@ function CreateListDialog(props) {
     startingStage: "To Do",
     endingStage: "Done",
   });
-  const [toast, setToast] = useState({
-    status: "",
-    open: false,
-    message: "",
-  });
+  const { toast, setToast } = useToast();
   const handlePopupClose = (id) => {
     onClose(id);
   };
@@ -61,7 +57,7 @@ function CreateListDialog(props) {
       headers.append("content-type", "application/json");
       headers.append("Authorization", "Bearer " + token);
       try {
-        await fetch("/api/lists", {
+        await fetch("http://localhost:5134/api/lists", {
           method: "POST",
           body: JSON.stringify(value),
           headers,
@@ -85,6 +81,21 @@ function CreateListDialog(props) {
   return (
     <Dialog onClose={handlePopupClose} open={open}>
       <DialogTitle> Create Item </DialogTitle>
+      <IconButton
+        aria-label="close"
+        onClick={() => {
+          handleListItemClick(null);
+        }}
+        sx={(theme) => ({
+          position: "absolute",
+          right: 8,
+          top: 8,
+          color: theme.palette.grey[500],
+        })}
+      >
+        <CloseRounded />
+      </IconButton>
+      <Divider />
       <DialogContent>
         <Box className="login-box">
           <Stack
@@ -149,21 +160,6 @@ function CreateListDialog(props) {
             </Button>
           </Stack>
         </Box>
-        <Snackbar
-          anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
-          open={toast.open}
-          autoHideDuration={6000}
-          onClose={handlePopupClose}
-        >
-          <Alert
-            onClose={handlePopupClose}
-            severity={toast.status}
-            variant="filled"
-            sx={{ width: "100%" }}
-          >
-            {toast.message}
-          </Alert>
-        </Snackbar>
       </DialogContent>
     </Dialog>
   );

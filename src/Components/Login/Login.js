@@ -7,14 +7,13 @@ import {
   Divider,
   FormControl,
   Popover,
-  Snackbar,
   Stack,
-  TextField,
+  TextField
 } from "@mui/material";
 import Paper from "@mui/material/Paper";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useLoading } from "../Loader/LoadingProvider";
+import { useLoading, useToast } from "../../Contexts/Loader/LoadingProvider";
 import "./Login.css";
 const validationRules = {
   minLength: {
@@ -45,11 +44,7 @@ function Login() {
     email: "",
     password: "",
   });
-  const [toast, setToast] = useState({
-    status: "",
-    open: false,
-    message: "",
-  });
+  const { toast, setToast } = useToast();
   const [anchorEl, setAnchorEl] = useState(null);
 
   const [errors, setErrors] = useState(() => {
@@ -82,7 +77,7 @@ function Login() {
       let headers = new Headers();
       headers.append("content-type", "application/json");
       try {
-        await fetch("/api/login", {
+        await fetch("http://localhost:5134/api/login", {
           method: "POST",
           body: JSON.stringify(value),
           headers,
@@ -192,21 +187,6 @@ function Login() {
           </Stack>
         </Paper>
       </Box>
-      <Snackbar
-        anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
-        open={toast.open}
-        autoHideDuration={6000}
-        onClose={handleClose}
-      >
-        <Alert
-          onClose={handleClose}
-          severity={toast.status}
-          variant="filled"
-          sx={{ width: "100%" }}
-        >
-          {toast.message}
-        </Alert>
-      </Snackbar>
       <Popover
         id={id}
         disableAutoFocus

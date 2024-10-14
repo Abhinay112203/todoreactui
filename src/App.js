@@ -3,8 +3,8 @@ import { red, orange } from "@mui/material/colors";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import "./App.css";
 import Home from "./Components/Home/Home";
-import LoadingComponent from "./Components/Loader/Loader";
-import { LoadingProvider } from "./Components/Loader/LoadingProvider";
+import LoadingComponent from "./Contexts/Loader/Loader";
+import { LoadingProvider } from "./Contexts/Loader/LoadingProvider";
 import Login from "./Components/Login/Login";
 import AuthorisedLayout from "./Layouts/Authorised";
 import UnAuthorisedLayout from "./Layouts/UnAuthorised";
@@ -29,7 +29,7 @@ function App() {
           <Routes>
             <Route path="/auth" element={<AuthorisedLayout />}>
               <Route index element={<Home />} />
-              <Route path="list/:id" element={<ViewList />} />
+              <Route path="list/:listId" element={<ViewList />} />
             </Route>
             <Route path="/" element={<UnAuthorisedLayout />}>
               <Route index element={<Login />} />

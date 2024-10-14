@@ -1,0 +1,15 @@
+.lists-container {
+  display: flex;
+  gap: 10px;
+  height: 100%;
+}
+.lists-container div[data-rbd-droppable-id] {
+  /* text-align: center; */
+}
+.list-title {
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+}
