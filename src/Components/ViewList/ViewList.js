@@ -1,7 +1,7 @@
 import { AddRounded } from "@mui/icons-material";
 import { Box, Button, Divider, IconButton } from "@mui/material";
 import { useEffect, useState } from "react";
-import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
+import { DragDropContext, Draggable, Droppable } from "@hello-pangea/dnd";
 import { useParams } from "react-router-dom";
 import AddStageDialog from "../AddStage/AddStage";
 import "./ViewList.css";
@@ -52,18 +52,23 @@ export default function ViewList() {
       if (res.ok) {
         let response = await res.json();
         setList({ ...response });
+        setStages([]);
+        let newStages = [];
         if (response.stages && response.stages.length > 0) {
-          const newStages = response.stages.map(async (stage) => {
-            stage.tasks = await getTasks(stage.id);
-          });
-          setStages([...newStages]);
+          for (let i = 0; i < response.stages.length; i++) {
+            var currentStage = response.stages[i];
+            newStages.push({
+              ...currentStage,
+              tasks: await getTasks(currentStage.id),
+            });
+          }
         }
+        setStages([...newStages]);
       }
     });
   }
-
-  function getTasks(stageId) {
-    return new Promise(async (resolve, rej) => {
+  async function getTasks(stageId) {
+    return await new Promise(async (resolve, rej) => {
       let token = localStorage.getItem("token");
       let headers = new Headers();
       headers.append("content-type", "application/json");
@@ -81,6 +86,22 @@ export default function ViewList() {
           rej([]);
         }
       });
+    });
+  }
+  function dragEnd(props) {
+    updateStage(props?.destination?.droppableId, props.draggableId);
+  }
+  async function updateStage(stageId, itemId) {
+    let token = localStorage.getItem("token");
+    let headers = new Headers();
+    headers.append("content-type", "application/json");
+    headers.append("Authorization", "Bearer " + token);
+    await fetch("http://localhost:5134/api/ToDo/updateStage", {
+      method: "PUT",
+      body: JSON.stringify({ toDoItemId: itemId, stageId: stageId }),
+      headers,
+    }).then(() => {
+      getLists();
     });
   }
 
@@ -128,7 +149,7 @@ export default function ViewList() {
         )}
       </header>
       <div className="lists-container">
-        <DragDropContext>
+        <DragDropContext onDragEnd={dragEnd}>
           {stages.map((stage, i) => {
             return (
               <Box
@@ -157,29 +178,36 @@ export default function ViewList() {
                   </IconButton>
                 </div>
                 <Divider variant="fullWidth" />
-                <Droppable key={i} index={i} droppableId={stage.id} >
+                <Droppable key={i} index={i} droppableId={stage.id}>
                   {(provided, snapshot) => (
-                    <div ref={provided.innerRef} {...provided.droppableProps}>
+                    <div
+                      key={stage.id}
+                      draggableId={stage.id}
+                      ref={provided.innerRef}
+                      {...provided.droppableProps}
+                    >
                       {(stage.tasks ? stage.tasks : []).map((item, index) => (
                         <Draggable
                           key={item.id}
-                          draggableId={item.id}
+                          draggableId={item.id + ""}
                           index={index}
                         >
                           {(provided, snapshot) => (
-                            <div>
+                            <div
+                              ref={provided.innerRef}
+                              {...provided.dragHandleProps}
+                              {...provided.draggableProps}
+                            >
                               <div
-                                ref={provided.innerRef}
-                                {...provided.dragHandleProps}
-                                {...provided.droppableProps}
-                                {...provided.draggableProps}
-                                // style={getItemStyle(
-                                //   provided.draggableProps.style,
-                                //   snapshot.isDragging
-                                // )}
+
+                              // style={getItemStyle(
+                              //   provided.draggableProps.style,
+                              //   snapshot.isDragging
+                              // )}
                               >
                                 {item.name}
                               </div>
+                              {provided.placeholder}
                               {provided.placeholder}
                             </div>
                           )}
