@@ -46,7 +46,7 @@ function CreateItemDialog(props) {
     headers.append("Authorization", "Bearer " + token);
     setLoading(true);
     try {
-      await fetch("http://localhost:5134/api/ToDo", {
+      await fetch("/api/ToDo", {
         method: "POST",
         body: JSON.stringify(value),
         headers,

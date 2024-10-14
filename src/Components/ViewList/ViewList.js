@@ -45,7 +45,7 @@ export default function ViewList() {
     let headers = new Headers();
     headers.append("content-type", "application/json");
     headers.append("Authorization", "Bearer " + token);
-    await fetch(`http://localhost:5134/api/lists/${listId}/stage`, {
+    await fetch(`/api/lists/${listId}/stage`, {
       method: "GET",
       headers,
     }).then(async (res) => {
@@ -73,7 +73,7 @@ export default function ViewList() {
       let headers = new Headers();
       headers.append("content-type", "application/json");
       headers.append("Authorization", "Bearer " + token);
-      await fetch(`http://localhost:5134/api/stages/${stageId}/tasks`, {
+      await fetch(`/api/stages/${stageId}/tasks`, {
         method: "GET",
         headers,
       }).then(async (res) => {
@@ -96,7 +96,7 @@ export default function ViewList() {
     let headers = new Headers();
     headers.append("content-type", "application/json");
     headers.append("Authorization", "Bearer " + token);
-    await fetch("http://localhost:5134/api/ToDo/updateStage", {
+    await fetch("/api/ToDo/updateStage", {
       method: "PUT",
       body: JSON.stringify({ toDoItemId: itemId, stageId: stageId }),
       headers,

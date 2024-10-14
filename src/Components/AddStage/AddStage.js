@@ -69,7 +69,7 @@ function AddStageDialog(props) {
       headers.append("content-type", "application/json");
       headers.append("Authorization", "Bearer " + token);
       try {
-        await fetch("http://localhost:5134/api/stages", {
+        await fetch("/api/stages", {
           method: "POST",
           body: JSON.stringify(value),
           headers,
