@@ -166,7 +166,7 @@ export default function AuthorisedLayout() {
           </Typography>
         </Toolbar>
       </AppBar>
-      <Box sx={{ display: "flex", height: mainHeight }}>
+      <Box sx={{ display: "flex", minHeight: mainHeight }}>
         <Drawer
           sx={[
             {
@@ -221,9 +221,7 @@ export default function AuthorisedLayout() {
         </Drawer>
         <Main
           sx={{
-            display: "flex",
-            flexDirection: "column",
-            height: "100%",
+            minHeight: "100%",
             backgroundColor: "#fdfde8",
           }}
           open={open}

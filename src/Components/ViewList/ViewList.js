@@ -1,11 +1,12 @@
+import { DragDropContext, Draggable, Droppable } from "@hello-pangea/dnd";
 import { AddRounded } from "@mui/icons-material";
 import { Box, Button, Divider, IconButton } from "@mui/material";
 import { useEffect, useState } from "react";
-import { DragDropContext, Draggable, Droppable } from "@hello-pangea/dnd";
 import { useParams } from "react-router-dom";
 import AddStageDialog from "../AddStage/AddStage";
-import "./ViewList.css";
 import CreateItemDialog from "../CreateItem/CreateItem";
+import Item from "../Item/Item";
+import "./ViewList.css";
 export default function ViewList() {
   const [openItemAdd, setItemAddOpen] = useState(false);
   const [openStageAdd, setStageAddOpen] = useState(false);
@@ -64,6 +65,15 @@ export default function ViewList() {
           }
         }
         setStages([...newStages]);
+        // setTimeout(() => {
+        //   anime({
+        //     targets: ['.task'],
+        //     loop: 1,
+        //     margin: ['10px','9px','5px','9px','10px'],
+        //     borderWidth: ['0','1px', '5px','1px','0'],
+        //     easing: 'easeInOutQuad'
+        //   })
+        // }, 1000);
       }
     });
   }
@@ -93,8 +103,6 @@ export default function ViewList() {
     var destinationStage = props?.destination;
     var sourceStage = props?.source;
     var movedItem = undefined;
-
-    var FinalStage = [];
     for (let i = 0; i < stages.length; i++) {
       let aStage = stages[i];
       if (aStage.id === sourceStage.droppableId) {
@@ -108,19 +116,22 @@ export default function ViewList() {
         aStage.tasks.splice(destinationStage.index, 0, movedItem);
       }
     }
-    console.log(stages);
-    // toDoItemId,stageId,Order
     let FinalOrder = [];
     stages.forEach((aStage) => {
-      ((aStage.tasks && aStage.tasks.length > 0) ? aStage.tasks : []).forEach(
-        (aTask, ind) => {
-          FinalOrder.push({
-            toDoItemId: aTask.id,
-            stageId: aStage.id,
-            order: ind,
-          });
-        }
-      );
+      if (
+        aStage.id === destinationStage.droppableId ||
+        aStage.id === sourceStage.droppableId
+      ) {
+        (aStage.tasks && aStage.tasks.length > 0 ? aStage.tasks : []).forEach(
+          (aTask, ind) => {
+            FinalOrder.push({
+              toDoItemId: aTask.id,
+              stageId: aStage.id,
+              order: ind,
+            });
+          }
+        );
+      }
     });
 
     updateStage(FinalOrder);
@@ -140,7 +151,9 @@ export default function ViewList() {
       console.log(ex);
     }
   }
-
+  function setItem(item) {
+    // let stage =
+  }
   return (
     <>
       <header
@@ -184,18 +197,20 @@ export default function ViewList() {
           ""
         )}
       </header>
-      <div className="lists-container">
+      <div style={{overflow: 'auto'}} className="lists-container">
         <DragDropContext onDragEnd={dragEnd}>
           {stages.map((stage, i) => {
             return (
               <Box
                 key={i}
                 sx={{
-                  height: "100%",
+                  minHeight: "100%",
                   width: "180px",
                   border: " 1px solid #bf9c98",
                   borderRadius: "10px",
                   order: stage.order,
+                  display: "flex",
+                  flexDirection: "column",
                 }}
               >
                 <div className="list-title">
@@ -235,15 +250,8 @@ export default function ViewList() {
                               {...provided.dragHandleProps}
                               {...provided.draggableProps}
                             >
-                              <div
+                              <Item item={item} />
 
-                              // style={getItemStyle(
-                              //   provided.draggableProps.style,
-                              //   snapshot.isDragging
-                              // )}
-                              >
-                                {item.name}
-                              </div>
                               {provided.placeholder}
                               {provided.placeholder}
                             </div>
